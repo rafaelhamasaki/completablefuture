@@ -30,7 +30,8 @@ public class SpotifyRelatedArtistsTopTracksController {
         Map<String, List<Artist>> results = new HashMap<>();
 
         for (String artistName : artistNames) {
-            results.put(artistName, service.findRelatedArtistsTopTracks(artistName));
+            List<Artist> relatedArtistsTopTracks = service.findRelatedArtistsTopTracks(artistName);
+            results.put(artistName, relatedArtistsTopTracks);
         }
 
         log.info("Query took {} milliseconds.", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start));
