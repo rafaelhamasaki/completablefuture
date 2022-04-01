@@ -13,7 +13,7 @@ Mais informações na [documentação oficial](https://developer.spotify.com/doc
 ## Execução
 
 ```bash
-mvnw spring-boot:run \
+./mvnw spring-boot:run \
     -Dspring-boot.run.arguments="\
         --clientId=<client_id da sua aplicação>\
         --clientSecret=<client_secret da sua aplicação>"
