@@ -1,8 +1,10 @@
 package io.github.yukiohama.completablefuture.spotify;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,16 +24,23 @@ public class SpotifyRelatedArtistsTopTracksController {
     }
 
     @GetMapping
-    public Map<String, List<Artist>> listRelatedArtistTracks(@RequestParam(name = "artist") List<String> artistNames) {
+    public Map<String, Collection<Artist>> listRelatedArtistTracks(@RequestParam(name = "artist") List<String> artistNames) {
         long start = System.nanoTime();
 
         log.info("Finding top tracks of artists related to \"{}\"...", artistNames);
 
-        Map<String, List<Artist>> results = new HashMap<>();
+        Map<String, Collection<Artist>> results = new HashMap<>();
+        Map<String, CompletableFuture<Collection<Artist>>> futures = new HashMap<>();
 
         for (String artistName : artistNames) {
-            List<Artist> relatedArtistsTopTracks = service.findRelatedArtistsTopTracks(artistName);
-            results.put(artistName, relatedArtistsTopTracks);
+            CompletableFuture<Collection<Artist>> relatedArtistsTopTracks = service.findRelatedArtistsTopTracks(artistName);
+            futures.put(artistName, relatedArtistsTopTracks);
+        }
+
+        for (Map.Entry<String, CompletableFuture<Collection<Artist>>> future : futures.entrySet()) {
+            String artistName = future.getKey();
+            Collection<Artist> relatedArtistsAndTracks = future.getValue().join();
+            results.put(artistName, relatedArtistsAndTracks);
         }
 
         log.info("Query took {} milliseconds.", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start));
